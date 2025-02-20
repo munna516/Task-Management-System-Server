@@ -1,13 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hqlh5.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
@@ -23,9 +22,10 @@ async function run() {
     const db = client.db("Task-Management");
     const tasksCollection = db.collection("Tasks");
 
-    
     app.get("/tasks", async (req, res) => {
-      const tasks = await tasksCollection.find().toArray();
+      const email = req.query.email;
+      const query = { email: email };
+      const tasks = await tasksCollection.find(query).toArray();
       res.json(tasks);
     });
 
@@ -35,36 +35,28 @@ async function run() {
         email,
         title,
         description,
-        category: category || "To-Do",
+        category: category ,
         timestamp: new Date(),
       };
+      console.log(task)
       const result = await tasksCollection.insertOne(task);
       res.send(result);
     });
 
     app.put("/tasks/:id", async (req, res) => {
-      try {
-        const { id } = req.params;
-        const updatedTask = req.body;
-
-        await tasksCollection.updateOne(
-          { _id: new ObjectId(id) },
-          { $set: updatedTask }
-        );
-        res.json({ message: "Task updated successfully" });
-      } catch (error) {
-        res.status(500).json({ error: "Error updating task" });
-      }
+      const { id } = req.params;
+      const updatedTask = req.body;
+      const result = await tasksCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedTask }
+      );
+      res.send(result);
     });
 
     app.delete("/tasks/:id", async (req, res) => {
-      try {
-        const { id } = req.params;
-        await tasksCollection.deleteOne({ _id: new ObjectId(id) });
-        res.json({ message: "Task deleted successfully" });
-      } catch (error) {
-        res.status(500).json({ error: "Error deleting task" });
-      }
+      const { id } = req.params;
+      const result = await tasksCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
     });
 
     await client.connect();
