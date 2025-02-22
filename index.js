@@ -35,7 +35,7 @@ async function run() {
       } else {
         res.send({ message: "200" });
       }
-    });
+    }); 
     // get task by specific users
     app.get("/tasks", async (req, res) => {
       const email = req.query.email;
@@ -76,11 +76,11 @@ async function run() {
       res.send(result);
     });
 
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.connect();
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // await client.close();
   }
