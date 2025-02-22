@@ -35,7 +35,7 @@ async function run() {
       } else {
         res.send({ message: "200" });
       }
-    }); 
+    });
     // get task by specific users
     app.get("/tasks", async (req, res) => {
       const email = req.query.email;
@@ -56,6 +56,23 @@ async function run() {
       };
       const result = await tasksCollection.insertOne(task);
       res.send(result);
+    });
+    // Reorder Task
+    app.put("/tasks/updateOrder", async (req, res) => {
+      const { tasks } = req.body;
+      try {
+        const bulkOps = tasks.map((task) => ({
+          updateOne: {
+            filter: { _id: new ObjectId(task._id) },
+            update: { $set: { position: task.position } },
+          },
+        }));
+
+        const result = await tasksCollection.bulkWrite(bulkOps);
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ error: "Failed to update task order" });
+      }
     });
 
     // update task
