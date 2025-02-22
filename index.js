@@ -30,7 +30,7 @@ async function run() {
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       if (!user) {
-        const result =await usersCollection.insertOne(userDetails);
+        const result = await usersCollection.insertOne(userDetails);
         res.send(result);
       } else {
         res.send({ message: "200" });
@@ -54,7 +54,6 @@ async function run() {
         category: category,
         timestamp: new Date(),
       };
-      console.log(task);
       const result = await tasksCollection.insertOne(task);
       res.send(result);
     });
